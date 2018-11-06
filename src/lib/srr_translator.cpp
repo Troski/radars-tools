@@ -31,26 +31,24 @@ namespace srr_translator
 		for(auto it = tracks_list_.begin(); it != tracks_list_.end();++it)
 		{
 			delphi_srr_msgs::SrrTrack track = it->second;
-			track_angle = track.CAN_TX_DETECT_ANGLE;
-//			track_range = track.track_range;
-//			track_width = track.track_width;
-//			track_accel = track.track_range_accel;
-//			track_speed = track.track_range_rate;
+			track_angle = track.CAN_TX_DETECT_ANGLE; //rad
+			track_range = track.CAN_TX_DETECT_RANGE; //meters
+			track_amplitude = track.CAN_TX_DETECT_AMPLITUDE; //dBsm
+			track_speed = track.CAN_TX_DETECT_RANGE_RATE; //m/s
 //
 //			marker_msg.id = track.track_ID;
-//			marker_msg.pose.position.x = track_range * std::cos(track_angle);
-//			marker_msg.pose.position.y = track_range * std::sin(track_angle);
-//			marker_msg.pose.position.z = 0.05;
+			marker_msg.pose.position.x = track_range * std::cos(track_angle);
+			marker_msg.pose.position.y = track_range * std::sin(track_angle);
+			marker_msg.pose.position.z = 0.05;
 //
 //
-//			std::string lat_speed_str = std::to_string(lat_speed);
-//			std::string speed_str = std::to_string(track_speed);
-//			std::string accel_str = std::to_string(track_accel);
+			std::string speed_str = std::to_string(track_speed);
+
 //
-//			std::string viz_info_str = "lat_speed: " + lat_speed_str +
-//									   "\n" + "speed: " + speed_str +
-//									   "\n"+ "accel: " + accel_str+
-//									   "\n";
+			std::string viz_info_str = "lat_speed: " + lat_speed_str +
+									   "\n" + "speed: " + speed_str +
+									   "\n"+ "accel: " + accel_str+
+									   "\n";
 //
 //			text_marker_msg.id = marker_msg.id + 1000;
 //			text_marker_msg.text = viz_info_str;
