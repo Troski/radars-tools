@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   			 tf2
   			 tf2_ros
   			 delphi_esr_msgs
+  			 delphi_srr_msgs
   			 radar_msgs 
   			 visualization_msgs)
 
@@ -59,6 +60,7 @@ catkin_package(INCLUDE_DIRS include
   			   tf2_ros
                std_msgs
                delphi_esr_msgs
+               delphi_srr_msgs
                radar_msgs
                visualization_msgs
 			   #DEPENDS system_lib
@@ -74,9 +76,13 @@ include_directories(include
   					${catkin_INCLUDE_DIRS})
 
 ## Declare a C++ library
-add_library(ESR_TRANSLATOR
+add_library(esr_translator
    			src/lib/esr_translator.cpp)
 
+add_library(srr_translator
+			src/lib/srr_translator.cpp)
+		
+		
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -85,10 +91,11 @@ add_library(ESR_TRANSLATOR
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/delphi_esr_node.cpp)
+add_executable(${PROJECT_NAME}_node
+		       src/delphi_esr_node.cpp)
 
 target_link_libraries(${PROJECT_NAME}_node
-   					  ESR_TRANSLATOR)
+   					  esr_translator)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node

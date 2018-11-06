@@ -26,7 +26,7 @@
   <build_depend>tf2</build_depend>
   <build_depend>tf2_ros</build_depend>
   <build_depend>visualization_msgs</build_depend>
-  
+  <build_depend>delphi_srr_msgs</build_depend>
 
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
@@ -36,7 +36,7 @@
   <build_export_depend>delphi_esr_msgs</build_export_depend>
   <build_export_depend>radar_msgs</build_export_depend>
   <build_export_depend>visualization_msgs</build_export_depend>
-
+  <build_export_depend>delphi_srr_msgs</build_export_depend>
 
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
@@ -46,7 +46,7 @@
   <exec_depend>delphi_esr_msgs</exec_depend>
   <exec_depend>radar_msgs</exec_depend>
   <exec_depend>visualization_msgs</exec_depend>
-
+  <exec_depend>delphi_srr_msgs</exec_depend>
    			   
   			   
   <!-- The export tag contains other, unspecified, tags -->
