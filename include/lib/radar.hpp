@@ -15,6 +15,8 @@
 #include<visualization_msgs/Marker.h>
 #include<visualization_msgs/MarkerArray.h>
 
+#include<radar_msgs/RadarDetectionArray.h>
+#include<radar_msgs/RadarDetection.h>
 
 class Radar
 {
@@ -31,6 +33,8 @@ protected:
 	ros::Publisher viz_pub_;
 	double timeout_secs_;
 	bool running_from_bag_;
+
+	virtual void generateMakers();
 
 };
 
