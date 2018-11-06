@@ -17,9 +17,10 @@ namespace srr_translator
 		SRRTranslator();
 		~SRRTranslator();
 	private:
+		ros::Subscriber srr_track_sub_;
 		std::map<unsigned char, delphi_srr_msgs::SrrTrack> tracks_list_;
-		void generateMakers();
-
+		void generateMakers(const delphi_srr_msgs::SrrTrackConstPtr &track_msg);
+		void srrTrackCB(const delphi_srr_msgs::SrrTrackConstPtr &track_msg);
 
 	};
 

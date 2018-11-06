@@ -10,7 +10,8 @@
 
 
 Radar::Radar():timeout_secs_(0.01),
-			   running_from_bag_(false)
+			   running_from_bag_(false),
+			   nh_priv_("~")
 {
 	template_marker_.id = 0;
 	template_marker_.type = visualization_msgs::Marker::CUBE;

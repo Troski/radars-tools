@@ -27,10 +27,10 @@ public:
 protected:
 
 	visualization_msgs::Marker template_marker_, template_string_marker_;
+	ros::NodeHandle nh_priv_;
 	ros::Publisher viz_pub_;
 	double timeout_secs_;
 	bool running_from_bag_;
-	virtual void generateMakers();
 
 };
 
