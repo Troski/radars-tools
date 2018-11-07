@@ -16,7 +16,9 @@ namespace esr_translator
 								   running_from_bag_(false)
 	{
 		esr_trackarray_sub_ = nh_priv_.subscribe("/parsed_tx/radartrack",100, &ESRTranslator::ESRTrackCB, this);
+		odom_sub_ = nh_priv_.subscribe("/my_odom",100,&ESRTranslator::OdomCB,this);
 		viz_pub_ = nh_priv_.advertise<visualization_msgs::MarkerArray>("esr_tracks_viz",10);
+		twist_pub_ = nh_priv_.advertise<geometry_msgs::TwistStamped>("as_rx/vehicle_motion",10);
 
 		nh_priv_.getParam("running_from_bag",running_from_bag_);
 
@@ -152,6 +154,15 @@ namespace esr_translator
 				++it;
 			}
 		}
+	}
+
+	void ESRTranslator::OdomCB(const nav_msgs::OdometryConstPtr& msg)
+	{
+		geometry_msgs::TwistStamped twist;
+		twist.twist = msg->twist.twist;
+		twist.header = msg->header;
+
+
 	}
 
 }

@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   			 tf2_ros
   			 delphi_esr_msgs
   			 delphi_srr_msgs
+  			 geometry_msgs
+  			 nav_msgs
   			 radar_msgs 
   			 visualization_msgs)
 
@@ -61,6 +63,8 @@ catkin_package(INCLUDE_DIRS include
                std_msgs
                delphi_esr_msgs
                delphi_srr_msgs
+               geometry_msgs
+               nav_msgs
                radar_msgs
                visualization_msgs
 			   #DEPENDS system_lib

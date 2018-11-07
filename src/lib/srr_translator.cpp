@@ -27,10 +27,8 @@ namespace srr_translator
 		visualization_msgs::MarkerArray viz_array_msg;
 		visualization_msgs::Marker marker_msg = template_marker_;
 		visualization_msgs::Marker text_marker_msg = template_string_marker_;
-		float lat_speed, track_angle, track_range, track_width;
-		float track_accel, track_speed;
+		float lat_speed, track_speed;
 
-		//for(auto it = detections_list_.begin(); it != detections_list_.end();++it)
 		for(int i = 0; i < detections_list_.detections.size(); i++)
 		{
 			marker_msg.id = detections_list_.detections[i].detection_id;
@@ -70,6 +68,12 @@ namespace srr_translator
 		double angle = track_msg->CAN_TX_DETECT_ANGLE;
 		double amplitude = track_msg->CAN_TX_DETECT_AMPLITUDE;
 		bool detect_stat = track_msg->CAN_TX_DETECT_STATUS;
+
+		ROS_INFO_STREAM("Speed: "<<speed);
+		ROS_INFO_STREAM("Range: "<<range);
+		ROS_INFO_STREAM("Angle: "<<angle);
+		ROS_INFO_STREAM("Amplitude: "<<amplitude);
+		ROS_INFO_STREAM("Detect Status: "<<detect_stat);
 
 	}
 
