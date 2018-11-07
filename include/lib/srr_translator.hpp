@@ -7,6 +7,8 @@
 
 #include<lib/radar.hpp>
 #include<delphi_srr_msgs/SrrTrack.h>
+#include<list>
+
 
 namespace srr_translator
 {
@@ -19,8 +21,9 @@ namespace srr_translator
 	private:
 		ros::Subscriber srr_track_sub_;
 		ros::Subscriber radar_detection_array_sub_;
+		radar_msgs::RadarDetectionArray detections_list_;
 
-		std::map<unsigned char, radar_msgs::RadarDetection> detections_list_;
+
 		void generateMakers();
 		void srrTrackCB(const delphi_srr_msgs::SrrTrackConstPtr &track_msg);
 		void radarDetectionsCB(const radar_msgs::RadarDetectionArrayConstPtr &detections_msg);
