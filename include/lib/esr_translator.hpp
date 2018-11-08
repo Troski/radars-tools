@@ -29,6 +29,7 @@
 #include<nav_msgs/Odometry.h>
 
 #include <tf2_ros/transform_listener.h>
+#include <tf2_ros/transform_broadcaster.h>
 
 namespace esr_translator
 {
@@ -50,11 +51,13 @@ namespace esr_translator
 		nav_msgs::Odometry current_odom_;
         tf2_ros::Buffer tf2_buffer_;
 		tf2_ros::TransformListener tf2_listener_;
+		tf2_ros::TransformBroadcaster tf2_broadcaster_;
 
 		std::mutex odom_mutex_;
 
 		double timeout_secs_; //timeout in seconds.
 		bool running_from_bag_;
+		bool publish_tf_;
 		std::map<unsigned char, delphi_esr_msgs::EsrTrack> tracks_list_;
 
 		void ESRTrackCB(const delphi_esr_msgs::EsrTrackConstPtr& msg);

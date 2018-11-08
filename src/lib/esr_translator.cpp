@@ -14,7 +14,8 @@ namespace esr_translator
 	ESRTranslator::ESRTranslator():nh_priv_("~"),
 								   timeout_secs_(0.5),
 								   running_from_bag_(false),
-								   tf2_listener_(tf2_buffer_)
+								   tf2_listener_(tf2_buffer_),
+								   publish_tf_(true)
 	{
 		//esr_trackarray_sub_ = nh_priv_.subscribe("/parsed_tx/radartrack",100, &ESRTranslator::ESRTrackCB, this); //super noisy topic
 		odom_sub_ = nh_priv_.subscribe("/my_odom",100,&ESRTranslator::OdomTwistConverterCB,this);
@@ -26,9 +27,10 @@ namespace esr_translator
 
 		nh_priv_.getParam("running_from_bag",running_from_bag_);
 
+
 		template_marker_.id = 0;
 		template_marker_.type = visualization_msgs::Marker::CUBE;
-		template_marker_.header.frame_id = "esr_front";
+		template_marker_.header.frame_id = "esr_1";
 		template_marker_.color.r = 0;
 		template_marker_.color.g = 255;
 		template_marker_.color.b = 0;
@@ -173,7 +175,17 @@ namespace esr_translator
 		twist.twist = odom_msg->twist.twist;
 		twist.header = odom_msg->header;
 
+		geometry_msgs::TransformStamped odom_tf;
+		odom_tf.header.stamp = ros::Time::now();
+		odom_tf.header.frame_id = "odom";
+		odom_tf.child_frame_id = "base_link";
 
+		odom_tf.transform.translation.x = odom_msg->pose.pose.position.x;
+		odom_tf.transform.translation.y = odom_msg->pose.pose.position.y;
+		odom_tf.transform.translation.z = odom_msg->pose.pose.position.z;
+		odom_tf.transform.rotation = odom_msg->pose.pose.orientation;
+
+		tf2_broadcaster_.sendTransform(odom_tf);
 
 		twist_pub_.publish(twist);
 	}
@@ -187,12 +199,16 @@ namespace esr_translator
 		odom_mutex_.unlock();
 
 		// lookupTransform("target","source",ros::Time(0)->latest transform)
-		geometry_msgs::TransformStamped radar_tf = tf2_buffer_.lookupTransform("esr_front","base_link",ros::Time(0));
+		//geometry_msgs::TransformStamped radar_tf = tf2_buffer_.lookupTransform("esr_1","base_link",ros::Time(0));
+
+		ROS_WARN_STREAM("Radar Track Frame ID: "<<msg->header.frame_id);
+
 
 		for(int i = 0; i < msg->tracks.size(); i++)
 		{
 			geometry_msgs::PolygonStamped track_shape_msg;
 			radar_msgs::RadarTrack radar_track = msg->tracks[i];
+
 			for(int j = 0; j < radar_track.track_shape.points.size(); j++)
 			{
 				radar_track.track_shape.points[j].x = radar_track.track_shape.points[j].x - car_pose.position.x; //TODO: Test.
@@ -200,7 +216,7 @@ namespace esr_translator
 			}
 
 			track_shape_msg.polygon = radar_track.track_shape;
-			track_shape_msg.header.frame_id = "esr_front";
+			track_shape_msg.header.frame_id = "esr_1";
 			track_shape_msg.header.stamp = ros::Time::now();
 			poly_pub_.publish(track_shape_msg);
 		}
