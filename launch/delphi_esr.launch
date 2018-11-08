@@ -1,13 +1,11 @@
 <launch>
-	
-	<param name="robot_description" command="cat $(<add here the urdf for your car>)" />
-	<node pkg="robot_state_publisher" name="radar_state_publisher" type="robot_state_publisher">
-    </node>
-	
-	<include file="$(find delphi_esr)/launch/delphi_esr.launch" />
-	
+	<param name="robot_description" command="cat $(find ascent_car)/launch/car_003/urdf/car_003.urdf" />
+	<node pkg="robot_state_publisher" name="radar_state_publisher" type="robot_state_publisher"/>
+    	
 	<node name="delphi_esr_translator" pkg="delphi_esr_translator" type="delphi_esr_translator_node" output="screen">
-	<param name="running_from_bag" type="bool" value="true"/>
+	
+	<param name="running_from_bag" type="bool" value="false"/>
+	
 	</node>
-
+	
 </launch>

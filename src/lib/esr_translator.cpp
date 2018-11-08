@@ -17,8 +17,11 @@ namespace esr_translator
 	{
 		esr_trackarray_sub_ = nh_priv_.subscribe("/parsed_tx/radartrack",100, &ESRTranslator::ESRTrackCB, this);
 		odom_sub_ = nh_priv_.subscribe("/my_odom",100,&ESRTranslator::OdomCB,this);
+		radar_track_array_sub_ = nh_priv_.subscribe("/as_tx/radar_tracks",100,&ESRTranslator::radarTracks, this);
+
 		viz_pub_ = nh_priv_.advertise<visualization_msgs::MarkerArray>("esr_tracks_viz",10);
-		twist_pub_ = nh_priv_.advertise<geometry_msgs::TwistStamped>("as_rx/vehicle_motion",10);
+		twist_pub_ = nh_priv_.advertise<geometry_msgs::TwistStamped>("/as_rx/vehicle_motion",10);
+		poly_pub_ = nh_priv_.advertise<geometry_msgs::PolygonStamped>("/track_shape",10);
 
 		nh_priv_.getParam("running_from_bag",running_from_bag_);
 
@@ -30,9 +33,9 @@ namespace esr_translator
 		template_marker_.color.b = 0;
 		template_marker_.color.a = 1.0;
 
-		template_marker_.scale.x = 0.1;
-		template_marker_.scale.y = 0.1;
-		template_marker_.scale.z = 0.1;
+		template_marker_.scale.x = 0.3;
+		template_marker_.scale.y = 0.3;
+		template_marker_.scale.z = 0.3;
 
 		template_string_marker_.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
 		template_string_marker_.header.frame_id = template_marker_.header.frame_id;
@@ -67,6 +70,9 @@ namespace esr_translator
 
 		if(running_from_bag_)
 			track.header.stamp = ros::Time::now(); //update timestamp, for tracks_list_ upkeep.
+		float track_width = track.track_width;
+		if(track_width > 0)
+		   ROS_WARN_STREAM("Track Width: "<<track_width);
 
 		updateTracksList(track);
 		generateMakers();
@@ -162,8 +168,21 @@ namespace esr_translator
 		twist.twist = msg->twist.twist;
 		twist.header = msg->header;
 
-
+		twist_pub_.publish(twist);
 	}
+
+	void ESRTranslator::radarTracks(const radar_msgs::RadarTrackArrayConstPtr& msg)
+	{
+		for(int i = 0; i < msg->tracks.size(); i++)
+		{
+			geometry_msgs::PolygonStamped track_shape_msg;
+			track_shape_msg.polygon = msg->tracks[i].track_shape;
+			track_shape_msg.header.frame_id = "/esr_1";
+			track_shape_msg.header.stamp = ros::Time::now();
+			poly_pub_.publish(track_shape_msg);
+		}
+	}
+
 
 }
 
