@@ -13,10 +13,11 @@ namespace esr_translator
 
 	ESRTranslator::ESRTranslator():nh_priv_("~"),
 								   timeout_secs_(0.5),
-								   running_from_bag_(false)
+								   running_from_bag_(false),
+								   tf2_listener_(tf2_buffer_)
 	{
-		esr_trackarray_sub_ = nh_priv_.subscribe("/parsed_tx/radartrack",100, &ESRTranslator::ESRTrackCB, this);
-		odom_sub_ = nh_priv_.subscribe("/my_odom",100,&ESRTranslator::OdomCB,this);
+		//esr_trackarray_sub_ = nh_priv_.subscribe("/parsed_tx/radartrack",100, &ESRTranslator::ESRTrackCB, this); //super noisy topic
+		odom_sub_ = nh_priv_.subscribe("/my_odom",100,&ESRTranslator::OdomTwistConverterCB,this);
 		radar_track_array_sub_ = nh_priv_.subscribe("/as_tx/radar_tracks",100,&ESRTranslator::radarTracks, this);
 
 		viz_pub_ = nh_priv_.advertise<visualization_msgs::MarkerArray>("esr_tracks_viz",10);
@@ -27,7 +28,7 @@ namespace esr_translator
 
 		template_marker_.id = 0;
 		template_marker_.type = visualization_msgs::Marker::CUBE;
-		template_marker_.header.frame_id = "/esr_1";
+		template_marker_.header.frame_id = "esr_front";
 		template_marker_.color.r = 0;
 		template_marker_.color.g = 255;
 		template_marker_.color.b = 0;
@@ -162,22 +163,41 @@ namespace esr_translator
 		}
 	}
 
-	void ESRTranslator::OdomCB(const nav_msgs::OdometryConstPtr& msg)
+	void ESRTranslator::OdomTwistConverterCB(const nav_msgs::OdometryConstPtr& odom_msg)
 	{
+		odom_mutex_.lock();
+		current_odom_ = *odom_msg;
+		odom_mutex_.unlock();
+
 		geometry_msgs::TwistStamped twist;
-		twist.twist = msg->twist.twist;
-		twist.header = msg->header;
+		twist.twist = odom_msg->twist.twist;
+		twist.header = odom_msg->header;
+
+
 
 		twist_pub_.publish(twist);
 	}
 
 	void ESRTranslator::radarTracks(const radar_msgs::RadarTrackArrayConstPtr& msg)
 	{
+
+		geometry_msgs::Pose car_pose;
+		odom_mutex_.lock();
+		car_pose = current_odom_.pose.pose;
+		odom_mutex_.unlock();
+
 		for(int i = 0; i < msg->tracks.size(); i++)
 		{
 			geometry_msgs::PolygonStamped track_shape_msg;
-			track_shape_msg.polygon = msg->tracks[i].track_shape;
-			track_shape_msg.header.frame_id = "/esr_1";
+			radar_msgs::RadarTrack radar_track = msg->tracks[i];
+			for(int j = 0; j < radar_track.track_shape.points.size(); j++)
+			{
+				radar_track.track_shape.points[j].x = radar_track.track_shape.points[j].x - car_pose.position.x; //TODO: Test.
+				radar_track.track_shape.points[j].y = radar_track.track_shape.points[j].y - car_pose.position.y; //TODO: Test.
+			}
+
+			track_shape_msg.polygon = radar_track.track_shape;
+			track_shape_msg.header.frame_id = "esr_front";
 			track_shape_msg.header.stamp = ros::Time::now();
 			poly_pub_.publish(track_shape_msg);
 		}
