@@ -198,22 +198,10 @@ namespace esr_translator
 		car_pose = current_odom_.pose.pose;
 		odom_mutex_.unlock();
 
-		// lookupTransform("target","source",ros::Time(0)->latest transform)
-		//geometry_msgs::TransformStamped radar_tf = tf2_buffer_.lookupTransform("esr_1","base_link",ros::Time(0));
-
-		ROS_WARN_STREAM("Radar Track Frame ID: "<<msg->header.frame_id);
-
-
 		for(int i = 0; i < msg->tracks.size(); i++)
 		{
 			geometry_msgs::PolygonStamped track_shape_msg;
 			radar_msgs::RadarTrack radar_track = msg->tracks[i];
-
-			for(int j = 0; j < radar_track.track_shape.points.size(); j++)
-			{
-				radar_track.track_shape.points[j].x = radar_track.track_shape.points[j].x - car_pose.position.x; //TODO: Test.
-				radar_track.track_shape.points[j].y = radar_track.track_shape.points[j].y - car_pose.position.y; //TODO: Test.
-			}
 
 			track_shape_msg.polygon = radar_track.track_shape;
 			track_shape_msg.header.frame_id = "esr_1";
