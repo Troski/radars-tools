@@ -15,8 +15,13 @@ namespace esr_translator
 								   timeout_secs_(0.5),
 								   running_from_bag_(false),
 								   tf2_listener_(tf2_buffer_),
-								   publish_tf_(true)
+								   publish_tf_(true),
+								   frame_id_str_("esr_1")
 	{
+
+		if(!nh_priv_.getParam("frame_id",frame_id_str_))
+			ROS_INFO_STREAM("frame_id param not provided, using default: "<<frame_id_str_);
+
 		//esr_trackarray_sub_ = nh_priv_.subscribe("/parsed_tx/radartrack",100, &ESRTranslator::ESRTrackCB, this); //super noisy topic
 		odom_sub_ = nh_priv_.subscribe("/my_odom",100,&ESRTranslator::OdomTwistConverterCB,this);
 		radar_track_array_sub_ = nh_priv_.subscribe("/as_tx/radar_tracks",100,&ESRTranslator::radarTracks, this);
@@ -25,12 +30,10 @@ namespace esr_translator
 		twist_pub_ = nh_priv_.advertise<geometry_msgs::TwistStamped>("/as_rx/vehicle_motion",10);
 		poly_pub_ = nh_priv_.advertise<geometry_msgs::PolygonStamped>("/track_shape",10);
 
-		nh_priv_.getParam("running_from_bag",running_from_bag_);
-
 
 		template_marker_.id = 0;
 		template_marker_.type = visualization_msgs::Marker::CUBE;
-		template_marker_.header.frame_id = "esr_1";
+		template_marker_.header.frame_id = frame_id_str_;
 		template_marker_.color.r = 0;
 		template_marker_.color.g = 255;
 		template_marker_.color.b = 0;
@@ -47,6 +50,8 @@ namespace esr_translator
 		template_string_marker_.color.g = 255;
 		template_string_marker_.color.b = 0;
 		template_string_marker_.color.a = 1.2;
+
+		template_marker_.lifetime = ros::Duration(0.5);
 
 	}
 
@@ -70,13 +75,7 @@ namespace esr_translator
 	void ESRTranslator::ESRTrackCB(const delphi_esr_msgs::EsrTrackConstPtr& msg)
 	{
 		delphi_esr_msgs::EsrTrack track = *msg;
-
-		if(running_from_bag_)
-			track.header.stamp = ros::Time::now(); //update timestamp, for tracks_list_ upkeep.
 		float track_width = track.track_width;
-		if(track_width > 0)
-		   ROS_WARN_STREAM("Track Width: "<<track_width);
-
 		updateTracksList(track);
 		generateMakers();
 	}
@@ -174,6 +173,7 @@ namespace esr_translator
 		geometry_msgs::TwistStamped twist;
 		twist.twist = odom_msg->twist.twist;
 		twist.header = odom_msg->header;
+		twist.header.stamp = ros::Time::now();
 
 		geometry_msgs::TransformStamped odom_tf;
 		odom_tf.header.stamp = ros::Time::now();
@@ -192,8 +192,10 @@ namespace esr_translator
 
 	void ESRTranslator::radarTracks(const radar_msgs::RadarTrackArrayConstPtr& msg)
 	{
-
+		visualization_msgs::MarkerArray marker_array;
+		visualization_msgs::Marker marker;
 		geometry_msgs::Pose car_pose;
+
 		odom_mutex_.lock();
 		car_pose = current_odom_.pose.pose;
 		odom_mutex_.unlock();
@@ -202,12 +204,31 @@ namespace esr_translator
 		{
 			geometry_msgs::PolygonStamped track_shape_msg;
 			radar_msgs::RadarTrack radar_track = msg->tracks[i];
-
 			track_shape_msg.polygon = radar_track.track_shape;
-			track_shape_msg.header.frame_id = "esr_1";
+			track_shape_msg.header.frame_id = frame_id_str_;
+
+			marker = template_marker_;
+			if(track_shape_msg.polygon.points.size() == 4)
+			{
+				marker.pose.position.x = track_shape_msg.polygon.points[0].x;
+				marker.pose.position.y = (track_shape_msg.polygon.points[1].y - track_shape_msg.polygon.points[0].y);
+				marker.pose.position.z = (track_shape_msg.polygon.points[0].z - track_shape_msg.polygon.points[3].z);
+
+				marker.scale.x = 0.001;
+				marker.scale.y = (std::fabs(track_shape_msg.polygon.points[1].y) + std::fabs(track_shape_msg.polygon.points[0].y));
+				marker.scale.z = (std::fabs(track_shape_msg.polygon.points[1].z) + std::fabs(track_shape_msg.polygon.points[0].z));
+			}
+
+			marker.id = radar_track.track_id;
+			marker.header.stamp = ros::Time::now();
+			marker_array.markers.push_back(marker);
+
 			track_shape_msg.header.stamp = ros::Time::now();
 			poly_pub_.publish(track_shape_msg);
 		}
+
+		viz_pub_.publish(marker_array);
+
 	}
 
 

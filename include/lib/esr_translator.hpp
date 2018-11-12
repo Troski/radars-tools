@@ -58,6 +58,7 @@ namespace esr_translator
 		double timeout_secs_; //timeout in seconds.
 		bool running_from_bag_;
 		bool publish_tf_;
+		std::string frame_id_str_;
 		std::map<unsigned char, delphi_esr_msgs::EsrTrack> tracks_list_;
 
 		void ESRTrackCB(const delphi_esr_msgs::EsrTrackConstPtr& msg);
