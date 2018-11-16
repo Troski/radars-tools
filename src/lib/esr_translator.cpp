@@ -34,9 +34,9 @@ namespace esr_translator
 		template_marker_.id = 0;
 		template_marker_.type = visualization_msgs::Marker::CUBE;
 		template_marker_.header.frame_id = frame_id_str_;
-		template_marker_.color.r = 0;
-		template_marker_.color.g = 255;
-		template_marker_.color.b = 0;
+		template_marker_.color.r = 255;
+		template_marker_.color.g = 0;
+		template_marker_.color.b = 255;
 		template_marker_.color.a = 1.0;
 
 		template_marker_.scale.x = 0.3;
@@ -192,45 +192,72 @@ namespace esr_translator
 
 	void ESRTranslator::radarTracks(const radar_msgs::RadarTrackArrayConstPtr& msg)
 	{
-		visualization_msgs::MarkerArray marker_array;
-		visualization_msgs::Marker marker;
-		geometry_msgs::Pose car_pose;
 
-		odom_mutex_.lock();
-		car_pose = current_odom_.pose.pose;
-		odom_mutex_.unlock();
+        geometry_msgs::Pose car_pose;
+        odom_mutex_.lock();
+        car_pose = current_odom_.pose.pose;
+        odom_mutex_.unlock();
 
-		for(int i = 0; i < msg->tracks.size(); i++)
-		{
-			geometry_msgs::PolygonStamped track_shape_msg;
-			radar_msgs::RadarTrack radar_track = msg->tracks[i];
-			track_shape_msg.polygon = radar_track.track_shape;
-			track_shape_msg.header.frame_id = frame_id_str_;
 
-			marker = template_marker_;
-			if(track_shape_msg.polygon.points.size() == 4)
-			{
-				marker.pose.position.x = track_shape_msg.polygon.points[0].x;
-				marker.pose.position.y = (track_shape_msg.polygon.points[1].y - track_shape_msg.polygon.points[0].y);
-				marker.pose.position.z = (track_shape_msg.polygon.points[0].z - track_shape_msg.polygon.points[3].z);
+    	visualization_msgs::MarkerArray tracks;
+        for(int i = 0; i < msg->tracks.size(); i++)
+        {
 
-				marker.scale.x = 0.001;
-				marker.scale.y = (std::fabs(track_shape_msg.polygon.points[1].y) + std::fabs(track_shape_msg.polygon.points[0].y));
-				marker.scale.z = (std::fabs(track_shape_msg.polygon.points[1].z) + std::fabs(track_shape_msg.polygon.points[0].z));
-			}
+        	if(msg->tracks[i].track_shape.points.size() == 4)
+        	{
+        		visualization_msgs::Marker track_marker;
+        		track_marker = template_marker_;
+        		track_marker.id = msg->tracks[i].track_id;
 
-			marker.id = radar_track.track_id;
-			marker.header.stamp = ros::Time::now();
-			marker_array.markers.push_back(marker);
+        		track_marker.pose.position.x = msg->tracks[i].track_shape.points[0].x;
+        		track_marker.pose.position.y = (msg->tracks[i].track_shape.points[0].y + msg->tracks[i].track_shape.points[1].y) / 2;
+        		track_marker.pose.position.z = 0.3;
 
-			track_shape_msg.header.stamp = ros::Time::now();
-			poly_pub_.publish(track_shape_msg);
-		}
+        		track_marker.pose.orientation.x = 0.0;
+        		track_marker.pose.orientation.y = 0.0;
+        		track_marker.pose.orientation.z = 0.0;
+        		track_marker.pose.orientation.w = 0.0;
 
-		viz_pub_.publish(marker_array);
+        		track_marker.scale.x = 0.01;
+        		track_marker.scale.y = (msg->tracks[i].track_shape.points[0].y - msg->tracks[i].track_shape.points[1].y);
+        		track_marker.scale.z = 1.5;
+
+
+        		tracks.markers.push_back(track_marker);
+        	}
+
+        }
+        viz_pub_.publish(tracks);
+
+//        for(int i = 0; i < msg->tracks.size(); i++)
+//        {
+//                geometry_msgs::PolygonStamped track_shape_msg;
+//                radar_msgs::RadarTrack radar_track = msg->tracks[i];
+//
+//                track_shape_msg.polygon = radar_track.track_shape;
+//
+//                track_shape_msg.header.frame_id = "esr_1";
+//                track_shape_msg.header.stamp = ros::Time::now();
+//                poly_pub_.publish(track_shape_msg);
+//        }
 
 	}
 
+
+	void ESRTranslator::PoseAbstraction(radar_msgs::RadarTrack radar_track, geometry_msgs::Pose &pose_estimation)
+	{
+
+		if(radar_track.track_shape.points.size() == 4)
+		{
+			pose_estimation.position.x = radar_track.track_shape.points[0].x;
+			pose_estimation.position.y = (radar_track.track_shape.points[0].y + radar_track.track_shape.points[1].y) / 2;
+			pose_estimation.position.z = 0.3;
+		}
+
+
+
+
+	}
 
 }
 

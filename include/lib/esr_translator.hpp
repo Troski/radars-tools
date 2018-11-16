@@ -66,6 +66,7 @@ namespace esr_translator
 		//AS Delphi Driver Subscribes to geometry_msg::Twist
 		void OdomTwistConverterCB(const nav_msgs::OdometryConstPtr& msg);
 		void radarTracks(const radar_msgs::RadarTrackArrayConstPtr& msg);
+		void PoseAbstraction(radar_msgs::RadarTrack radar_track, geometry_msgs::Pose &pose_estimation);
 		void generateMakers();
 
 	};
