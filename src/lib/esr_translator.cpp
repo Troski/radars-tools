@@ -219,7 +219,7 @@ namespace esr_translator
         		track_marker.pose.orientation.w = 0.0;
 
         		track_marker.scale.x = 0.01;
-        		track_marker.scale.y = (msg->tracks[i].track_shape.points[0].y - msg->tracks[i].track_shape.points[1].y);
+        		track_marker.scale.y = std::fabs(msg->tracks[i].track_shape.points[0].y - msg->tracks[i].track_shape.points[1].y);
         		track_marker.scale.z = 1.5;
 
 
@@ -228,36 +228,8 @@ namespace esr_translator
 
         }
         viz_pub_.publish(tracks);
-
-//        for(int i = 0; i < msg->tracks.size(); i++)
-//        {
-//                geometry_msgs::PolygonStamped track_shape_msg;
-//                radar_msgs::RadarTrack radar_track = msg->tracks[i];
-//
-//                track_shape_msg.polygon = radar_track.track_shape;
-//
-//                track_shape_msg.header.frame_id = "esr_1";
-//                track_shape_msg.header.stamp = ros::Time::now();
-//                poly_pub_.publish(track_shape_msg);
-//        }
-
 	}
 
-
-	void ESRTranslator::PoseAbstraction(radar_msgs::RadarTrack radar_track, geometry_msgs::Pose &pose_estimation)
-	{
-
-		if(radar_track.track_shape.points.size() == 4)
-		{
-			pose_estimation.position.x = radar_track.track_shape.points[0].x;
-			pose_estimation.position.y = (radar_track.track_shape.points[0].y + radar_track.track_shape.points[1].y) / 2;
-			pose_estimation.position.z = 0.3;
-		}
-
-
-
-
-	}
 
 }
 
