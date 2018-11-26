@@ -95,12 +95,17 @@ add_library(srr_translator
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node
-		       src/delphi_esr_node.cpp)
+add_executable(esr_node
+		       src/esr_node.cpp)
 
-target_link_libraries(${PROJECT_NAME}_node
-   					  esr_translator)
+target_link_libraries(esr_node
+   					  esr_translator
+   					  ${catkin_LIBRARIES})
 
-## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node
-    				  ${catkin_LIBRARIES})
+add_executable(srr_node
+			   src/srr_node.cpp)   					  
+   					  
+target_link_libraries(srr_node
+   					  srr_translator
+   					  ${catkin_LIBRARIES})
+   					  

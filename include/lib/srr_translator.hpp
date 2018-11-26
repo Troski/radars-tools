@@ -5,15 +5,19 @@
  *      Author: marco
  */
 
-#include<lib/radar.hpp>
+#include<ros/ros.h>
 #include<delphi_srr_msgs/SrrTrack.h>
-#include<list>
+#include<visualization_msgs/Marker.h>
+#include<visualization_msgs/MarkerArray.h>
+
+#include<radar_msgs/RadarDetectionArray.h>
+#include<radar_msgs/RadarDetection.h>
 
 
 namespace srr_translator
 {
 
-	class SRRTranslator:Radar
+	class SRRTranslator
 	{
 	public:
 		SRRTranslator();

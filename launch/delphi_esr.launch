@@ -1,10 +1,14 @@
 <launch>
-	<param name="robot_description" command="cat $(find ascent_car)/launch/car_003/urdf/car_003.urdf" />
-	<node pkg="robot_state_publisher" name="radar_state_publisher" type="robot_state_publisher"/>
-    	
+		
+		
+	<arg name="frame_id_arg" default="esr_1"/>	
+		
 	<node name="delphi_esr_translator" pkg="delphi_esr_translator" type="delphi_esr_translator_node" output="screen">
 	
 	<param name="running_from_bag" type="bool" value="false"/>
+	<param name="publish_tf" type="bool" value="false"/>
+	<param name="frame_id" type="string" value="$(arg frame_id_arg)"/>
+	<param name="namespace" type="string" value="esr_1"/>
 	
 	</node>
 	

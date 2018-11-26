@@ -24,11 +24,11 @@ namespace esr_translator
 
 		//esr_trackarray_sub_ = nh_priv_.subscribe("/parsed_tx/radartrack",100, &ESRTranslator::ESRTrackCB, this); //super noisy topic
 		odom_sub_ = nh_priv_.subscribe("/my_odom",100,&ESRTranslator::OdomTwistConverterCB,this);
-		radar_track_array_sub_ = nh_priv_.subscribe("/as_tx/radar_tracks",100,&ESRTranslator::radarTracks, this);
+		radar_track_array_sub_ = nh_priv_.subscribe(+"/"+frame_id_str_+"/as_tx/radar_tracks",100,&ESRTranslator::radarTracks, this);
 
 		viz_pub_ = nh_priv_.advertise<visualization_msgs::MarkerArray>("esr_tracks_viz",10);
-		twist_pub_ = nh_priv_.advertise<geometry_msgs::TwistStamped>("/as_rx/vehicle_motion",10);
-		poly_pub_ = nh_priv_.advertise<geometry_msgs::PolygonStamped>("/track_shape",10);
+		twist_pub_ = nh_priv_.advertise<geometry_msgs::TwistStamped>("as_rx/vehicle_motion",10);
+		poly_pub_ = nh_priv_.advertise<geometry_msgs::PolygonStamped>("track_shape",10);
 
 
 		template_marker_.id = 0;
@@ -197,7 +197,6 @@ namespace esr_translator
         odom_mutex_.lock();
         car_pose = current_odom_.pose.pose;
         odom_mutex_.unlock();
-
 
     	visualization_msgs::MarkerArray tracks;
         for(int i = 0; i < msg->tracks.size(); i++)
