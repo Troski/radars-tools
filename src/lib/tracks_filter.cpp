@@ -6,23 +6,23 @@
  */
 
 
-#include<lib/esr_translator.hpp>
+#include "../../include/lib/tracks_filter.hpp"
 
-namespace esr_translator
+namespace tracks_filter
 {
 
-	ESRTranslator::ESRTranslator():nh_priv_("~"),
+    TracksFilter::TracksFilter():nh_priv_("~"),
 								   timeout_secs_(0.5),
 								   running_from_bag_(false)
 	{
-		esr_trackarray_sub_ = nh_priv_.subscribe("/parsed_tx/radartrack",100, &ESRTranslator::ESRTrackCB, this);
+    	track_array_sub_ = nh_priv_.subscribe("/parsed_tx/radartrack",100, &TracksFilter::trackCB, this);
 		viz_pub_ = nh_priv_.advertise<visualization_msgs::MarkerArray>("esr_tracks_viz",10);
 
 		nh_priv_.getParam("running_from_bag",running_from_bag_);
 
 		template_marker_.id = 0;
 		template_marker_.type = visualization_msgs::Marker::CUBE;
-		template_marker_.header.frame_id = "/esr_1";
+		template_marker_.header.frame_id = "/front_esr";
 		template_marker_.color.r = 0;
 		template_marker_.color.g = 255;
 		template_marker_.color.b = 0;
@@ -42,12 +42,12 @@ namespace esr_translator
 
 	}
 
-	ESRTranslator::~ESRTranslator()
+    TracksFilter::~TracksFilter()
 	{
 
 	}
 
-	void ESRTranslator::run()
+	void TracksFilter::run()
 	{
 		ros::Rate rate(30);
 
@@ -59,18 +59,18 @@ namespace esr_translator
 
 	}
 
-	void ESRTranslator::ESRTrackCB(const delphi_esr_msgs::EsrTrackConstPtr& msg)
+	void TracksFilter::trackCB(const delphi_esr_msgs::EsrTrackConstPtr& msg)
 	{
 		delphi_esr_msgs::EsrTrack track = *msg;
-
-		if(running_from_bag_)
-			track.header.stamp = ros::Time::now(); //update timestamp, for tracks_list_ upkeep.
-
-		updateTracksList(track);
+		if(track.track_range < 100)
+		{
+			if(track.track_angle > -30.0 && track.track_angle < 30.0)
+				updateTracksList(track);
+		}
 		generateMakers();
 	}
 
-	void ESRTranslator::generateMakers()
+	void TracksFilter::generateMakers()
 	{
 
 		visualization_msgs::MarkerArray viz_array_msg;
@@ -120,7 +120,7 @@ namespace esr_translator
 		viz_pub_.publish(viz_array_msg);
 	}
 
-	void ESRTranslator::updateTracksList(delphi_esr_msgs::EsrTrack track)
+	void TracksFilter::updateTracksList(delphi_esr_msgs::EsrTrack track)
 	{
 		unsigned char track_id = track.track_ID;
 		auto track_item = tracks_list_.find(track_id); //search track in tracks_list_ by id.
@@ -133,9 +133,7 @@ namespace esr_translator
 			tracks_list_.insert(new_entry); //if track not in list add it to the list.
 		}
 		else
-		{
-			 track_item->second = track; //edit track if found on list.
-		}
+			track_item->second = track; //edit track if found on list.
 
 		//Going through list, and erase tracks that have been in the list longer than the timeout.
 		for(auto it = tracks_list_.begin(); it != tracks_list_.end();)
@@ -144,13 +142,10 @@ namespace esr_translator
 			delphi_esr_msgs::EsrTrack track = it->second;
 			double time_delta = (ros::Time::now() - track.header.stamp).toSec();
 			if(time_delta > timeout_secs_)
-			{
 				it = tracks_list_.erase(it);
-			}
 			else
-			{
 				++it;
-			}
+
 		}
 	}
 

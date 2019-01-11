@@ -8,12 +8,13 @@
 
 
 #include<ros/ros.h>
-#include<lib/esr_translator.hpp>
+
+#include "../include/lib/tracks_filter.hpp"
 
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "delphi_esr");
-    esr_translator::ESRTranslator translator;
+    tracks_filter::TracksFilter translator;
     translator.run();
     return 0;
 }

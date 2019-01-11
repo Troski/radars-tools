@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(delphi_esr_translator)
+project(radars-tools)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -20,26 +20,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
 
-
-################################################
-## Declare ROS dynamic reconfigure parameters ##
-################################################
-
-## To declare and build dynamic reconfigure parameters within this
-## package, follow these steps:
-## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for "dynamic_reconfigure"
-## * In this file (CMakeLists.txt):
-##   * add "dynamic_reconfigure" to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * uncomment the "generate_dynamic_reconfigure_options" section below
-##     and list every .cfg file to be processed
-
-## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
 
 ###################################
 ## catkin specific configuration ##
@@ -74,22 +54,18 @@ include_directories(include
   					${catkin_INCLUDE_DIRS})
 
 ## Declare a C++ library
-add_library(ESR_TRANSLATOR
-   			src/lib/esr_translator.cpp)
+add_library(TRACKS_FILTER
+   			src/lib/tracks_filter.cpp)
 
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/delphi_esr_node.cpp)
+add_executable(TRACKS_FILTER_NODE src/tracks_filter_node.cpp)
 
-target_link_libraries(${PROJECT_NAME}_node
-   					  ESR_TRANSLATOR)
+target_link_libraries(TRACKS_FILTER_NODE
+   					  TRACKS_FILTER)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node
+target_link_libraries(TRACKS_FILTER_NODE
     				  ${catkin_LIBRARIES})

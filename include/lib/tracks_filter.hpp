@@ -24,28 +24,28 @@
 
 #include <tf2_ros/transform_listener.h>
 
-namespace esr_translator
+namespace tracks_filter
 {
 
-	class ESRTranslator
+	class TracksFilter
 	{
 
 	public:
-		ESRTranslator();
-		~ESRTranslator();
+		TracksFilter();
+		~TracksFilter();
 		void run();
 
 	private:
 
 		ros::NodeHandle nh_priv_;
-		ros::Subscriber esr_trackarray_sub_;
+		ros::Subscriber track_array_sub_;
 		ros::Publisher viz_pub_;
 		visualization_msgs::Marker template_marker_, template_string_marker_;
 		double timeout_secs_; //timeout in seconds.
 		bool running_from_bag_;
 		std::map<unsigned char, delphi_esr_msgs::EsrTrack> tracks_list_;
 
-		void ESRTrackCB(const delphi_esr_msgs::EsrTrackConstPtr& msg);
+		void trackCB(const delphi_esr_msgs::EsrTrackConstPtr& msg);
 		void updateTracksList(delphi_esr_msgs::EsrTrack track);
 		void generateMakers();
 
