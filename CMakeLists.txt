@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   			 roscpp
   			 rospy
   			 std_msgs
+  			 geometry_msgs
   			 tf2
   			 tf2_ros
   			 delphi_esr_msgs
@@ -39,6 +40,7 @@ catkin_package(INCLUDE_DIRS include
   			   tf2_ros
                std_msgs
                delphi_esr_msgs
+               geometry_msgs
                radar_msgs
                visualization_msgs
 			   #DEPENDS system_lib
