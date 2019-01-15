@@ -45,7 +45,7 @@ namespace tracks_filter
 		template_string_marker_.color.r = 255;
 		template_string_marker_.color.g = 0;
 		template_string_marker_.color.b = 0;
-		template_string_marker_.color.a = 1.2;
+		template_string_marker_.color.a = 2.5;
 
 	}
 
@@ -90,38 +90,31 @@ namespace tracks_filter
 			float y = tracks.tracks[i].track_shape.points[0].y;
 			range = sqrt(pow(x,2) + pow(y,2));
 			angle = atan(y/x) * 180 / 3.14;
-			if(range < 10)
+			if(range < range_limit_)
 			{
+				if(std::fabs(angle) < angle_limit_)
+				{
+					marker_msg.id = tracks.tracks[i].track_id;
+					marker_msg.pose.position.x = tracks.tracks[i].track_shape.points[0].x;
+					marker_msg.pose.position.y = tracks.tracks[i].track_shape.points[0].y;
+					marker_msg.pose.position.z = 0.05;
 
-				marker_msg.id = tracks.tracks[i].track_id;
-				marker_msg.pose.position.x = tracks.tracks[i].track_shape.points[0].x;
-				marker_msg.pose.position.y = tracks.tracks[i].track_shape.points[0].y;
-				marker_msg.pose.position.z = 0.05;
+					std::string angle_str = std::to_string(angle);
+					std::string viz_info_str = "angle: " + angle_str + "\n";
 
-				marker_msg.header.stamp = ros::Time::now();
-				text_marker_msg.header.stamp = marker_msg.header.stamp;
+					text_marker_msg.id = marker_msg.id + 1000;
+					text_marker_msg.text = viz_info_str;
+					text_marker_msg.scale.z = 0.07;
+					text_marker_msg.pose.position = marker_msg.pose.position;
+					text_marker_msg.pose.position.z+=0.5;
 
-				viz_array_msg.markers.push_back(marker_msg);
-				viz_array_msg.markers.push_back(text_marker_msg);
+					marker_msg.header.stamp = ros::Time::now();
+					text_marker_msg.header.stamp = marker_msg.header.stamp;
+
+					viz_array_msg.markers.push_back(marker_msg);
+					viz_array_msg.markers.push_back(text_marker_msg);
+				}
 			}
-
-
-//			std::string lat_speed_str = std::to_string(lat_speed);
-//			std::string speed_str = std::to_string(track_speed);
-//			std::string accel_str = std::to_string(track_accel);
-//
-//			std::string viz_info_str = "lat_speed: " + lat_speed_str +
-//									   "\n" + "speed: " + speed_str +
-//									   "\n"+ "accel: " + accel_str+
-//									   "\n";
-//
-//			text_marker_msg.id = marker_msg.id + 1000;
-//			text_marker_msg.text = viz_info_str;
-//			text_marker_msg.scale.z = 0.07;
-//			text_marker_msg.pose.position = marker_msg.pose.position;
-//			text_marker_msg.pose.position.z+=0.06;
-
-
 		}
 		viz_pub_.publish(viz_array_msg);
 
