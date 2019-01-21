@@ -38,6 +38,7 @@ namespace tracks_filter
 		template_marker_.scale.x = 0.1;
 		template_marker_.scale.y = 0.1;
 		template_marker_.scale.z = 0.5;
+		template_marker_.lifetime = ros::Duration(0.1);
 
 		template_string_marker_.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
 		template_string_marker_.header.frame_id = template_marker_.header.frame_id;
@@ -46,7 +47,7 @@ namespace tracks_filter
 		template_string_marker_.color.g = 0;
 		template_string_marker_.color.b = 0;
 		template_string_marker_.color.a = 2.5;
-
+		template_string_marker_.lifetime = ros::Duration(0.1);
 	}
 
     TracksFilter::~TracksFilter()
@@ -100,7 +101,9 @@ namespace tracks_filter
 					marker_msg.pose.position.z = 0.05;
 
 					std::string angle_str = std::to_string(angle);
-					std::string viz_info_str = "angle: " + angle_str + "\n";
+					std::string range_str = std::to_string(range);
+					std::string viz_info_str = "angle: " + angle_str + "\n" +
+							                    "distance: " + range_str + "\n";
 
 					text_marker_msg.id = marker_msg.id + 1000;
 					text_marker_msg.text = viz_info_str;

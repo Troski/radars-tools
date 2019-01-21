@@ -1,7 +1,7 @@
 <launch>
-	<node name="radar_filter" pkg="radars-tools" type="TRACKS_FILTER_NODE" output="screen">
+	<node name="radar_filter" pkg="radars-tools" type="tracks_filter_node" output="screen">
 	<param name="running_from_bag" type="bool" value="false"/>
-	<param name="angle_limit" type="double" value="45.0"/>
-	<param name="range_limit" type="double" value="20.0"/>
+	<param name="angle_limit" type="double" value="10.0"/>
+	<param name="range_limit" type="double" value="10.0"/>
 	</node>
 </launch>

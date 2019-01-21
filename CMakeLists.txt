@@ -63,11 +63,11 @@ add_library(TRACKS_FILTER
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(TRACKS_FILTER_NODE src/tracks_filter_node.cpp)
+add_executable(tracks_filter_node src/tracks_filter_node.cpp)
 
-target_link_libraries(TRACKS_FILTER_NODE
+target_link_libraries(tracks_filter_node
    					  TRACKS_FILTER)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(TRACKS_FILTER_NODE
+target_link_libraries(tracks_filter_node
     				  ${catkin_LIBRARIES})
